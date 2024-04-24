@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require('cors');
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 // Dotenv
 require('dotenv').config();
@@ -31,11 +31,19 @@ async function run() {
     const database = client.db("eDash");
     const products = database.collection("products");
 
+    // Find all products -> GET
     app.get("/products", async(req, res)=> {
       const cursor = products.find();
       const result = await cursor.toArray();
       res.send(result)
-      console.log(result);
+    })
+
+    // Find a product by a specific id -> GET
+    app.get("/products/:id", async(req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await products.findOne(query);
+      res.send(result);
     })
 
     // Insert product -> POST
@@ -43,7 +51,6 @@ async function run() {
         const product = req.body;
         const result = await products.insertOne(product);
         res.send(result);
-        console.log(product);
     });
 
 
