@@ -31,7 +31,7 @@ async function run() {
     const database = client.db("eDash");
     const products = database.collection("products");
 
-    app.get("api/products", async(req, res)=> {
+    app.get("/products", async(req, res)=> {
       const cursor = products.find();
       const result = await cursor.toArray();
       res.send(result)
@@ -39,7 +39,7 @@ async function run() {
     })
 
     // Insert product -> POST
-    app.post("api/products", async(req, res)=> {
+    app.post("/products", async(req, res)=> {
         const product = req.body;
         const result = await products.insertOne(product);
         res.send(result);
