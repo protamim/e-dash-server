@@ -25,13 +25,13 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     // Database Information
     const database = client.db("eDash");
     const products = database.collection("products");
 
-    app.get("/products", async(req, res)=> {
+    app.get("api/products", async(req, res)=> {
       const cursor = products.find();
       const result = await cursor.toArray();
       res.send(result)
@@ -39,7 +39,7 @@ async function run() {
     })
 
     // Insert product -> POST
-    app.post("/products", async(req, res)=> {
+    app.post("api/products", async(req, res)=> {
         const product = req.body;
         const result = await products.insertOne(product);
         res.send(result);
