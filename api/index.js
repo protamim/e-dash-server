@@ -1,10 +1,10 @@
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 const app = express();
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 // Dotenv
-require('dotenv').config();
+require("dotenv").config();
 
 // Middleware
 app.use(express.json());
@@ -19,7 +19,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -32,38 +32,58 @@ async function run() {
     const products = database.collection("products");
 
     // Find all products -> GET
-    app.get("/products", async(req, res)=> {
+    app.get("/products", async (req, res) => {
       const cursor = products.find();
       const result = await cursor.toArray();
-      res.send(result)
-    })
-
-    // Find a product by a specific id -> GET
-    app.get("/products/:id", async(req, res)=> {
-      const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
-      const result = await products.findOne(query);
       res.send(result);
-    })
-
-    // Insert product -> POST
-    app.post("/products", async(req, res)=> {
-        const product = req.body;
-        const result = await products.insertOne(product);
-        res.send(result);
     });
 
+    // Find a product by a specific id -> GET
+    app.get("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await products.findOne(query);
+      res.send(result);
+    });
+
+    // Insert a product to DB -> POST
+    app.post("/products", async (req, res) => {
+      const product = req.body;
+      const result = await products.insertOne(product);
+      res.send(result);
+    });
+
+    // Update a product -> PUT
+    app.put("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const selectedItem = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateProduct = {
+        $set: {
+          product_name: selectedItem.product_name,
+          product_price: selectedItem.product_price,
+          image_url: selectedItem.image_url,
+          size: selectedItem.size,
+          qty: selectedItem.qty,
+          description: selectedItem.description,
+        },
+      };
+      const result = await products.updateOne(filter, updateProduct, options);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
 run().catch(console.dir);
-
 
 app.get("/", (req, res) => {
   res.send(`API server is running on port: ${port}`);
