@@ -74,13 +74,12 @@ async function run() {
       res.send(result);
     });
 
-    // Delete a product based users req - Delete
+    // Delete a product by prodyuct ID - Delete
     app.delete("/products/:id", async (req, res) => {
       const userReqDoc = req.params.id;
       const filter = { _id: new ObjectId(userReqDoc) };
       const result = await products.deleteOne(filter);
       res.send(result);
-      // console.log(userReqDoc);
     });
 
 
@@ -109,6 +108,13 @@ async function run() {
       console.log(newCartProduct);
     });
 
+    // Delete a cart product by prodyuct ID - Delete
+    app.delete("/cart/:id", async (req, res) => {
+      const userReqDoc = req.params.id;
+      const filter = { _id: new ObjectId(userReqDoc) };
+      const result = await cart.deleteOne(filter);
+      res.send(result);
+    });
 
 
     // Send a ping to confirm a successful connection
