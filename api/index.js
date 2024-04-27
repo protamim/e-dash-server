@@ -30,6 +30,7 @@ async function run() {
     // Database Information
     const database = client.db("eDash");
     const products = database.collection("products");
+    const cart = database.collection("cart");
 
     // Find all products -> GET
     app.get("/products", async (req, res) => {
@@ -74,13 +75,41 @@ async function run() {
     });
 
     // Delete a product based users req - Delete
-    app.delete('/products/:id', async(req, res)=> {
+    app.delete("/products/:id", async (req, res) => {
       const userReqDoc = req.params.id;
-      const filter = {_id: new ObjectId(userReqDoc)};
+      const filter = { _id: new ObjectId(userReqDoc) };
       const result = await products.deleteOne(filter);
       res.send(result);
       // console.log(userReqDoc);
-    })
+    });
+
+
+    // Cart products Endpoints
+
+    // Read all cart products
+    app.get('/cart', async(req, res)=> {
+      const cursor = cart.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // Read user specific cart products that added to the cart by a user
+    app.get("/cart/:userEmail", async(req, res)=> {
+      const query = { userEmail: req.params.userEmail};
+      const cursor = cart.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // inser cart products to db - POST
+    app.post("/cart", async (req, res) => {
+      const newCartProduct = req.body;
+      const result = await cart.insertOne(newCartProduct);
+      res.send(result);
+      console.log(newCartProduct);
+    });
+
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
